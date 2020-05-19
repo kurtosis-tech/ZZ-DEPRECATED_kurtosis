@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata: 
+  name: gecko-service
+spec:
+  selector:
+    app: kurtosis
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 9650
+      targetPort: 30650
+      name: rpc
+    - protocol: TCP
+      port: 9651
+      targetPort: 30651
+      name: staking
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gecko-pod
+  labels:
+    app: kurtosis
+spec:
+  containers:
+    - image: gecko-7c4abde
+      name: gecko-7c4abde
+      command: ["/gecko/build/ava"]
+      args: ["--public-ip", "127.0.0.1", "--snow-sample-size", "1", "--snow-quorum-size", "1", "--staking-tls-enabled", "false", "--staking-port", "9651", "--http-port", "9650"]
+      imagePullPolicy: Never # always use local docker to find images
+      resources: {}
+      ports:
+        - containerPort: 9650
+          hostPort: 30650
+          hostIP: 127.0.0.1
+          name: rpc
+        - containerPort: 9651
+          hostPort: 30651
+          hostIP: 127.0.0.1
+          name: staking
