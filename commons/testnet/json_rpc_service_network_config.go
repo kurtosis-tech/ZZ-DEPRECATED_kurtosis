@@ -1,7 +1,8 @@
-package commons
+package testnet
 
 import (
 	"github.com/docker/docker/api/types"
+	"github.com/gmarchetti/kurtosis/commons/docker"
 	"github.com/palantir/stacktrace"
 )
 
@@ -17,7 +18,7 @@ func NewJsonRpcServiceNetworkConfig(serviceCfgs map[int]JsonRpcServiceConfig) *J
 	}
 }
 
-func (networkCfg JsonRpcServiceNetworkConfig) CreateAndRun(manager *DockerManager) (network *JsonRpcServiceNetwork, err error) {
+func (networkCfg JsonRpcServiceNetworkConfig) CreateAndRun(manager *docker.DockerManager) (network *JsonRpcServiceNetwork, err error) {
 	serviceContainerIds := make(map[int]string)
 	for serviceId, serviceCfg := range networkCfg.services {
 		containerConfigPtr, err := manager.GetContainerCfgFromServiceCfg(serviceCfg)

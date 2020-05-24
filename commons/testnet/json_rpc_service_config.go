@@ -1,4 +1,4 @@
-package commons
+package testnet
 
 // TODO probably split all this out into separate files
 
@@ -14,11 +14,11 @@ const (
 )
 
 type JsonRpcRequest struct {
-	Endpoint string
-	Method string
+	Endpoint   string
+	Method     string
 	RpcVersion JsonRpcVersion
-	Params map[string]string
-	ID int
+	Params     map[string]string
+	ID         int
 }
 type ServiceSpecificPort int
 

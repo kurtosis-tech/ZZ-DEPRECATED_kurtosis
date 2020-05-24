@@ -1,4 +1,4 @@
-package commons
+package testnet
 
 type JsonRpcServiceNetwork struct {
 	NetworkId string

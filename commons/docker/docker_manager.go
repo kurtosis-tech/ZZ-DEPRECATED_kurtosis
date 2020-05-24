@@ -1,10 +1,11 @@
-package commons
+package docker
 
 import (
 	"context"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
+	"github.com/gmarchetti/kurtosis/commons/testnet"
 	"github.com/palantir/stacktrace"
 	"strconv"
 )
@@ -48,7 +49,7 @@ func (manager DockerManager) getLocalHostIp() string {
 
 // Creates a Docker-Container-To-Host Port mapping, defining how a Container's JSON RPC and service-specific ports are
 // mapped to the host ports
-func (manager *DockerManager) GetContainerHostConfig(serviceConfig JsonRpcServiceConfig) (hostConfig *container.HostConfig, err error) {
+func (manager *DockerManager) GetContainerHostConfig(serviceConfig testnet.JsonRpcServiceConfig) (hostConfig *container.HostConfig, err error) {
 	freeRpcPort, err := manager.getFreePort()
 	if err != nil {
 		return nil, stacktrace.Propagate(err, "")
@@ -88,7 +89,7 @@ func (manager *DockerManager) GetContainerHostConfig(serviceConfig JsonRpcServic
 // TODO should I actually be passing sorta-complex objects like JsonRpcServiceConfig by value???
 // Creates a more generalized Docker Container configuration for Gecko, with a 5-parameter initialization command.
 // Gecko HTTP and Staking ports inside the Container are the standard defaults.
-func (manager *DockerManager) GetContainerCfgFromServiceCfg(serviceConfig JsonRpcServiceConfig) (config *container.Config, err error) {
+func (manager *DockerManager) GetContainerCfgFromServiceCfg(serviceConfig testnet.JsonRpcServiceConfig) (config *container.Config, err error) {
 	jsonRpcPort, err := nat.NewPort("tcp", strconv.Itoa(serviceConfig.GetJsonRpcPort()))
 	if err != nil {
 		return nil, stacktrace.Propagate(err, "Could not parse port int.")
