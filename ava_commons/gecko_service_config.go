@@ -9,6 +9,7 @@ package ava_commons
 import (
 	"fmt"
 	"github.com/gmarchetti/kurtosis/commons"
+	"log"
 	"strings"
 )
 
@@ -78,6 +79,7 @@ func (g GeckoServiceConfig) GetContainerStartCommand(ipAddrOffset int, dependenc
 		socketStrs := make([]string, 0, len(dependencyLivenessReqs))
 		for socket, _ := range dependencyLivenessReqs {
 			// TODO I hardcoded this to be the staking port rather than the RPC port, because there's currently no way to access the dependencys' staking port - fix!!!!!!!
+			log.Printf("Socket structure: IPAddress: %s, Port: %v", socket.IPAddress, socket.Port)
 			socketStrs = append(socketStrs, fmt.Sprintf("%s:%d", "127.0.0.1", 9651))
 			// socketStrs = append(socketStrs, fmt.Sprintf("%s:%d", socket.IPAddress, socket.Port))
 		}
