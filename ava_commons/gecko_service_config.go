@@ -61,7 +61,7 @@ func (g GeckoServiceConfig) GetContainerStartCommand(ipAddrOffset int, dependenc
 	commandList := []string{
 		"/gecko/build/ava",
 		// TODO this entire flag will go away soon!!
-		fmt.Sprintf("--public-ip=172.17.0.%d", 2 + ipAddrOffset),
+		fmt.Sprintf("--public-ip=127.0.0.1"),
 		"--network-id=local",
 		fmt.Sprintf("--http-port=%d", HTTP_PORT),
 		fmt.Sprintf("--staking-port=%d", STAKING_PORT),
@@ -78,7 +78,7 @@ func (g GeckoServiceConfig) GetContainerStartCommand(ipAddrOffset int, dependenc
 		socketStrs := make([]string, 0, len(dependencyLivenessReqs))
 		for socket, _ := range dependencyLivenessReqs {
 			// TODO I hardcoded this to be the staking port rather than the RPC port, because there's currently no way to access the dependencys' staking port - fix!!!!!!!
-			socketStrs = append(socketStrs, fmt.Sprintf("%s:%d", socket.IPAddress, 9651))
+			socketStrs = append(socketStrs, fmt.Sprintf("%s:%d", "127.0.0.1", 9651))
 			// socketStrs = append(socketStrs, fmt.Sprintf("%s:%d", socket.IPAddress, socket.Port))
 		}
 		joinedSockets := strings.Join(socketStrs, ",")
