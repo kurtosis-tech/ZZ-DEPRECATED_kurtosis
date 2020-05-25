@@ -21,14 +21,14 @@ func main() {
 	portRangeStartArg := flag.Int(
 		"port-range-start",
 		9650,
-		"Beginning of port range to be used by testnet on the local environment. Must be between 1024-65535",
+		"Beginning of port range to be used by testnet on the local environment. Must be between 1024-65535", //TODO make host range come from HostPortTracker
 	)
 	flag.Parse()
 
 	portRangeEndArg := flag.Int(
 		"port-range-end",
 		9670,
-		"End of port range to be used by testnet on the local environment. Must be between 1024-65535",
+		"End of port range to be used by testnet on the local environment. Must be between 1024-65535", //TODO make host range come from HostPortTracker
 	)
 	flag.Parse()
 
