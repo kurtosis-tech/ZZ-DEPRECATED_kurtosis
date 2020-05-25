@@ -1,12 +1,16 @@
 package commons
 
 import (
+	"bytes"
 	"context"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"github.com/palantir/stacktrace"
+	"io"
+	"log"
+	"os"
 	"strconv"
 )
 
@@ -14,8 +18,8 @@ import (
 const LOCAL_HOST_IP = "0.0.0.0"
 
 type DockerManager struct {
-	dockerCtx           context.Context
-	dockerClient        *client.Client
+	DockerCtx           context.Context
+	DockerClient        *client.Client
 	freeHostPortTracker *FreeHostPortTracker
 }
 
@@ -25,10 +29,22 @@ func NewDockerManager(dockerCtx context.Context, dockerClient *client.Client, ho
 		return nil, stacktrace.Propagate(err, "")
 	}
 	return &DockerManager{
-		dockerCtx:           dockerCtx,
-		dockerClient:        dockerClient,
+		DockerCtx:           dockerCtx,
+		DockerClient:        dockerClient,
 		freeHostPortTracker: freeHostPortTracker,
 	}, nil
+}
+
+func (manager *DockerManager) PullImageFromRepo(imageName string) (err error) {
+	reader, err := manager.DockerClient.ImagePull(manager.DockerCtx, imageName, types.ImagePullOptions{})
+	if err != nil {
+		return stacktrace.Propagate(err, "Unable to pull image from repo.")
+	}
+	io.Copy(os.Stdout, reader)
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(reader)
+	log.Printf("Pulling docker image: %s", buf.String())
+	return nil
 }
 
 func (manager DockerManager) CreateAndStartContainerForService(
@@ -47,15 +63,15 @@ func (manager DockerManager) CreateAndStartContainerForService(
 		return "", "", stacktrace.Propagate(err, "Failed to configure host to container mappings from service.")
 	}
 	// TODO probably use a UUID for the network name (and maybe include test name too)
-	resp, err := manager.dockerClient.ContainerCreate(manager.dockerCtx, containerConfigPtr, containerHostConfigPtr, nil, "")
+	resp, err := manager.DockerClient.ContainerCreate(manager.DockerCtx, containerConfigPtr, containerHostConfigPtr, nil, "")
 	if err != nil {
 		return "", "", stacktrace.Propagate(err, "Could not create Docker container from image %v.", dockerImage)
 	}
 	containerId = resp.ID
-	if err := manager.dockerClient.ContainerStart(manager.dockerCtx, containerId, types.ContainerStartOptions{}); err != nil {
+	if err := manager.DockerClient.ContainerStart(manager.DockerCtx, containerId, types.ContainerStartOptions{}); err != nil {
 		return "", "", stacktrace.Propagate(err, "Could not start Docker container from image %v.", dockerImage)
 	}
-	containerJson, err := manager.dockerClient.ContainerInspect(manager.dockerCtx, containerId)
+	containerJson, err := manager.DockerClient.ContainerInspect(manager.DockerCtx, containerId)
 	if err != nil {
 		return "","", stacktrace.Propagate(err, "Inspect container failed, which is necessary to get the container's IP")
 	}

@@ -1,10 +1,14 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
+	"github.com/docker/docker/client"
 	"github.com/gmarchetti/kurtosis/ava_commons"
+	"github.com/gmarchetti/kurtosis/commons"
 	"github.com/gmarchetti/kurtosis/initializer"
+	"github.com/palantir/stacktrace"
 )
 
 func main() {
@@ -14,6 +18,13 @@ func main() {
 	geckoImageNameArg := flag.String(
 		"gecko-image-name", 
 		"gecko-f290f73", // by default, pick commit that was on master May 14, 2020.
+		"the name of a pre-built gecko image in your docker engine.",
+	)
+
+	// Define and parse command line flags.
+	pullImageFromRepoArg := flag.Bool(
+		"pull-image-from-repo",
+		false, // by default, pick main ava repository.
 		"the name of a pre-built gecko image in your docker engine.",
 	)
 
@@ -30,7 +41,23 @@ func main() {
 	)
 	flag.Parse()
 
-	testSuiteRunner := initializer.NewTestSuiteRunner(*portRangeStartArg, *portRangeEndArg)
+	// Initialize default environment context.
+	dockerCtx := context.Background()
+	// Initialize a Docker client
+	dockerClient, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		panic(stacktrace.Propagate(err,"Failed to initialize Docker client from environment."))
+	}
+	dockerManager, err := commons.NewDockerManager(dockerCtx, dockerClient, *portRangeStartArg, *portRangeEndArg)
+	if err != nil {
+		panic(stacktrace.Propagate(err,"Failed to initialize Docker Manager."))
+	}
+
+	if *pullImageFromRepoArg {
+		dockerManager.PullImageFromRepo(*geckoImageNameArg)
+	}
+
+	testSuiteRunner := initializer.NewTestSuiteRunner(dockerManager)
 
 	// TODO Uncomment this when our RunTests method supports calling tests by name (rather than just running all tests)
 	/*

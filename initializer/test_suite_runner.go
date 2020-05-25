@@ -16,15 +16,13 @@ import (
 
 type TestSuiteRunner struct {
 	tests map[string]commons.TestNetworkConfigProvider
-	startPortRange int
-	endPortRange int
+	dockerManager *commons.DockerManager
 }
 
-func NewTestSuiteRunner(startPortRange int, endPortRange int) *TestSuiteRunner {
+func NewTestSuiteRunner(dockerManager *commons.DockerManager) *TestSuiteRunner {
 	return &TestSuiteRunner{
 		tests: make(map[string]commons.TestNetworkConfigProvider),
-		startPortRange: startPortRange,
-		endPortRange: endPortRange,
+		dockerManager: dockerManager,
 	}
 }
 
@@ -36,18 +34,6 @@ func (runner TestSuiteRunner) RegisterTest(name string, configProvider commons.T
 // Runs the tests whose names are defined in the given map (the map value is ignored - this is a hacky way to
 // do a set implementation)
 func (runner TestSuiteRunner) RunTests() (err error) {
-	// Initialize default environment context.
-	dockerCtx := context.Background()
-	// Initialize a Docker client
-	dockerClient, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-	if err != nil {
-		return stacktrace.Propagate(err,"Failed to initialize Docker client from environment.")
-	}
-
-	dockerManager, err := commons.NewDockerManager(dockerCtx, dockerClient, runner.startPortRange, runner.endPortRange)
-	if err != nil {
-		return stacktrace.Propagate(err, "Error in initializing Docker Manager.")
-	}
 
 	// TODO implement parallelism and specific test selection here
 	for testName, configProvider := range runner.tests {
@@ -56,12 +42,13 @@ func (runner TestSuiteRunner) RunTests() (err error) {
 			stacktrace.Propagate(err, "Unable to get network config from config provider")
 		}
 		networkName := testName + uuid.Generate().String()
-		serviceNetwork, err := testNetworkCfg.CreateAndRun(networkName, dockerManager)
+		serviceNetwork, err := testNetworkCfg.CreateAndRun(networkName, runner.dockerManager)
 		if err != nil {
 			return stacktrace.Propagate(err, "Unable to create network for test '%v'", testName)
 		}
 		for _, containerId := range serviceNetwork.ContainerIds {
-			waitAndGrabLogsOnError(dockerCtx, dockerClient, containerId)
+			// TODO TODO TODO MOVE THIS TO DOCKER MANAGER
+			waitAndGrabLogsOnError(runner.dockerManager.DockerCtx, runner.dockerManager.DockerClient, containerId)
 		}
 	}
 
