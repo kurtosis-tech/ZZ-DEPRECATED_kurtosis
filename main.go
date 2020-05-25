@@ -9,6 +9,7 @@ import (
 	"github.com/gmarchetti/kurtosis/commons"
 	"github.com/gmarchetti/kurtosis/initializer"
 	"github.com/palantir/stacktrace"
+	"log"
 )
 
 func main() {
@@ -54,6 +55,7 @@ func main() {
 	}
 
 	if *pullImageFromRepoArg {
+		log.Printf("Pulling image...")
 		dockerManager.PullImageFromRepo(*geckoImageNameArg)
 	}
 
