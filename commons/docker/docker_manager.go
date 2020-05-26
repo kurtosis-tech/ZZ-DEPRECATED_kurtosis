@@ -15,7 +15,7 @@ import (
 )
 
 // TODO TODO TODO - do we ever need to handle different local host IPs?
-const LOCAL_HOST_IP = "0.0.0.0"
+const LOCAL_HOST_IP = "127.0.0.1"
 
 type DockerManager struct {
 	dockerCtx           context.Context

@@ -81,8 +81,8 @@ func (g GeckoServiceFactoryConfig) GetStartCommand(ipAddrOffset int, dependencie
 	commandList := []string{
 		"/gecko/build/ava",
 		// TODO this entire flag will go away soon!!
-		fmt.Sprintf("--public-ip=172.17.0.%d", 2 + ipAddrOffset),
-		"--network-id=local",
+		// fmt.Sprintf("--public-ip=172.17.0.%d", 2 + ipAddrOffset),
+		// "--network-id=local",
 		fmt.Sprintf("--http-port=%d", httpPort),
 		fmt.Sprintf("--staking-port=%d", stakingPort),
 		fmt.Sprintf("--log-level=%s", g.logLevel),
