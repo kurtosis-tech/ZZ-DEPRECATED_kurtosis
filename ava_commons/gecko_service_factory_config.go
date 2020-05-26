@@ -3,6 +3,7 @@ package ava_commons
 import (
 	"fmt"
 	"github.com/docker/go-connections/nat"
+	"github.com/gmarchetti/kurtosis/commons/docker"
 	"github.com/gmarchetti/kurtosis/commons/testnet"
 	"strconv"
 	"strings"
@@ -103,7 +104,7 @@ func (g GeckoServiceFactoryConfig) GetStartCommand(ipAddrOffset int, dependencie
 		socketStrs := make([]string, 0, len(avaDependencies))
 		for _, service := range avaDependencies {
 			socket := service.GetStakingSocket()
-			socketStrs = append(socketStrs, fmt.Sprintf("%s:%d", socket.GetIpAddr(), socket.GetPort().Int()))
+			socketStrs = append(socketStrs, fmt.Sprintf("%s:%d", docker.LOCAL_HOST_IP, socket.GetPort().Int()))
 		}
 		joinedSockets := strings.Join(socketStrs, ",")
 		commandList = append(commandList, "--bootstrap-ips=" + joinedSockets)

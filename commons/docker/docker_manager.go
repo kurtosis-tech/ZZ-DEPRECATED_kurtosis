@@ -145,6 +145,7 @@ func (manager *DockerManager) getContainerHostConfig(usedPorts map[int]bool) (ho
 	}
 	containerHostConfigPtr := &container.HostConfig{
 		PortBindings: portMap,
+		NetworkMode: "host",
 	}
 	return containerHostConfigPtr, nil
 }
