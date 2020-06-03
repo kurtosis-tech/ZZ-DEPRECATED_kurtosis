@@ -25,6 +25,10 @@ func (factory ServiceFactory) Construct(
 	startCmdArgs := factory.config.GetStartCommand(staticIp, dependencies)
 	usedPorts := factory.config.GetUsedPorts()
 
+	filepathsToMount := factory.config.GetFilepathsToMount()
+	// TODO create a temp file on the parent host, just like we do for the controller's network info file
+	// TODO call factory.config.InitializeMountedFiles to fill in the file contents (closing the temporary file after)
+
 	// TODO mount volumes when we want services to read/write state to disk
 	// TODO we really want GetEnvVariables instead of GetStartCmd because every image should be nicely parameterized to avoid
 	//   the testing code knowing about the specifics of the image (like where the binary is located). However, this relies
@@ -35,6 +39,7 @@ func (factory ServiceFactory) Construct(
 			usedPorts,
 			startCmdArgs,
 			make(map[string]string),
+			// TODO pass in the mappings for each tempfile -> user-desired mount location
 			make(map[string]string))
 	if err != nil {
 		return nil, "", stacktrace.Propagate(err, "Could not start docker service for image %v", dockerImage)
