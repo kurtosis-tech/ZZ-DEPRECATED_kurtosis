@@ -346,7 +346,7 @@ func (manager *DockerManager) getContainerCfg(
 		Tty: false,
 		Image: dockerImage,
 		// TODO allow modifying of protocol at some point
-		ExposedPorts: portSet,
+		// ExposedPorts: portSet,
 		Cmd: startCmdArgs,
 		Env: envVariablesSlice,
 	}
