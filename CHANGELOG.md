@@ -1,5 +1,6 @@
 # TBD
 * Make tests declare a timeout and mark them as failed if they don't complete in that time
+* Add the controller log level (as string) as an argument for constructing a TestSuiteRunner - this string will get passed as-is to the controller image using the special environment variable `LOG_LEVEL`
 
 # 0.3.1
 * explicitly specify service IDs in network configurations
