@@ -35,6 +35,7 @@ func (checker ServiceAvailabilityChecker) WaitForStartup() error {
 	pollStartTime := time.Now()
 	for time.Since(pollStartTime) < startupTimeout {
 		if checker.core.IsServiceUp(checker.toCheck, checker.dependencies) {
+			logrus.Tracef("Service is up")
 			return nil
 		}
 		logrus.Tracef("Service is not yet available; sleeping for %v before retrying...", TIME_BETWEEN_STARTUP_POLLS)
