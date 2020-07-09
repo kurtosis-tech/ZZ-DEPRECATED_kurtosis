@@ -116,15 +116,15 @@ func (runner TestSuiteRunner) RunTests(testNamesToRun []string, testParallelism 
 		runner.additionalTestTimeoutBuffer)
 
 	logrus.Infof("Running %v tests with execution ID %v...", len(testsToRun), executionInstanceId.String())
-	interceptor := parallelism.NewErroneousSystemLogCaptureWriter()
+	interceptedLogMessages := make([]parallelism.ErroneousSystemLogInfo, 0)
+	interceptor := parallelism.NewErroneousSystemLogCaptureWriter(&interceptedLogMessages)
 	testOutputs := testExecutor.RunInParallel(interceptor, testParams)
 
 	logrus.Infof("Printing results for %v tests...", len(testsToRun))
 	allTestsPassed = processTestOutputs(testsToRun, testOutputs)
 
 	// If there was any erroneous system-level logging, loudly display that to the user
-	capturedErroneousMessages := interceptor.GetCapturedMessages()
-	if len(capturedErroneousMessages) > 0 {
+	if len(interceptedLogMessages) > 0 {
 		logrus.Error("")
 		logrus.Error("There were log messages printed to the system-level logger during parallel test execution!")
 		logrus.Error("Because the system-level logger is shared and the tests run in parallel, the messages cannot be")
@@ -135,7 +135,7 @@ func (runner TestSuiteRunner) RunTests(testNamesToRun []string, testParallelism 
 		logrus.Error("")
 		logrus.Error("The log message(s) attempted, and the stacktrace(s) of origination, are as follows in the order they were logged:")
 
-		for i, messageInfo := range capturedErroneousMessages {
+		for i, messageInfo := range interceptedLogMessages {
 			logrus.Errorf("----------------- Erroneous Message #%d -------------------", i+1)
 			logrus.Error("Message:")
 			logrus.StandardLogger().Out.Write(messageInfo.Message)

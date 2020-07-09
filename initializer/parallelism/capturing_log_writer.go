@@ -21,28 +21,29 @@ however, so we need a way to:
 So, we have this special writer which doesn't actually write to STDOUT but captures the input for later retrieval.
  */
 type ErroneousSystemLogCaptureWriter struct {
-	logMessages []ErroneousSystemLogInfo
+	logMessagesPtr *[]ErroneousSystemLogInfo
 }
 
-func NewErroneousSystemLogCaptureWriter() *ErroneousSystemLogCaptureWriter {
+/*
+Constructs a new capturer for erroneous system log messages. The Write interface (which we're trying to implement) doesn't
+allow a pointer receiver, so we have to go through these gymnastics of a slice pointer instead.
+ */
+func NewErroneousSystemLogCaptureWriter(logMessagesPtr *[]ErroneousSystemLogInfo) *ErroneousSystemLogCaptureWriter {
 	return &ErroneousSystemLogCaptureWriter{
-		logMessages: []ErroneousSystemLogInfo{},
+		logMessagesPtr: logMessagesPtr,
 	}
 }
 
-func (writer *ErroneousSystemLogCaptureWriter) Write(data []byte) (n int, err error) {
+func (writer ErroneousSystemLogCaptureWriter) Write(data []byte) (n int, err error) {
 	stacktraceBytes := getStacktraceBytes()
 	logInfo := ErroneousSystemLogInfo{
 		Message:       data,
 		Stacktrace: stacktraceBytes,
 	}
 
-	writer.logMessages = append(writer.logMessages, logInfo)
+	// In order to match the Write interface we can't have the receiver be a pointer, so we have to go through these gymnastics
+	*writer.logMessagesPtr = append(*writer.logMessagesPtr, logInfo)
 	return len(data), nil
-}
-
-func (writer *ErroneousSystemLogCaptureWriter) GetCapturedMessages() []ErroneousSystemLogInfo {
-	return writer.logMessages
 }
 
 func getStacktraceBytes() []byte {
