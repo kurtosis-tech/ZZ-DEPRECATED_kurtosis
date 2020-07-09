@@ -42,7 +42,7 @@ func (writer ErroneousSystemLogCaptureWriter) Write(data []byte) (n int, err err
 	}
 
 	// In order to match the Write interface we can't have the receiver be a pointer, so we have to go through these gymnastics
-	*(writer.logMessagesPtr) = append(*writer.logMessagesPtr, logInfo)
+	*(writer.logMessagesPtr) = append(*(writer.logMessagesPtr), logInfo)
 	return len(data), nil
 }
 
