@@ -134,6 +134,9 @@ func (executor TestExecutorParallelizer) runTestWorkerGoroutine(
 	// IMPORTANT: make sure that we mark a thread as done!
 	defer waitGroup.Done()
 
+	// TODO Debugging only
+	logrus.Info("Test system-level log; should break")
+
 	for testParams := range testParamsChan {
 		result := executor.runTestWithTotalTimeout(testParams)
 		testOutputChan <- result
