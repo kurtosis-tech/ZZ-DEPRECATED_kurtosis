@@ -1,18 +1,19 @@
 package networks
 
 import (
-	"github.com/docker/go-connections/nat"
-	"github.com/kurtosis-tech/kurtosis/commons/services"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/docker/go-connections/nat"
+	"github.com/kurtosis-tech/kurtosis/commons/services"
 )
 
-
-type TestService struct {}
+type TestService struct{}
 
 // ======================== Test Initializer Core ========================
-type TestInitializerCore struct {}
+type TestInitializerCore struct{}
+
 func (t TestInitializerCore) GetUsedPorts() map[nat.Port]bool {
 	return make(map[nat.Port]bool)
 }
@@ -20,7 +21,6 @@ func (t TestInitializerCore) GetUsedPorts() map[nat.Port]bool {
 func (t TestInitializerCore) GetServiceFromIp(ipAddr string) services.Service {
 	return TestService{}
 }
-
 
 func (t TestInitializerCore) GetFilesToMount() map[string]bool {
 	return make(map[string]bool)
@@ -42,9 +42,11 @@ func getTestInitializerCore() services.ServiceInitializerCore {
 	return TestInitializerCore{}
 }
 
-
 // ======================== Test Availability Checker Core ========================
-type TestAvailabilityCheckerCore struct {}
+type TestAvailabilityCheckerCore struct{}
+
+func (t TestAvailabilityCheckerCore) InitialDelay() time.Duration { return 0 }
+
 func (t TestAvailabilityCheckerCore) IsServiceUp(toCheck services.Service, dependencies []services.Service) bool {
 	return true
 }

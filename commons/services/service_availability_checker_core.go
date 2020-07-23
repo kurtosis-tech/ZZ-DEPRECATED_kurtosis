@@ -6,10 +6,14 @@ import "time"
 //  specific service interface and N represents the interface that every node on the network has
 /*
 Provides the condition to dictate when Kurtosis should consider a service as available.
- */
+*/
 type ServiceAvailabilityCheckerCore interface {
 	// GENERICS TOOD: When Go gets generics, make the type of these args 'toCheck S' and 'dependencies []N'
 	// Performs a service-specific check against the given service (and possibly its dependencies) to check if it's available
+
+	// InitialDelay returns the number of seconds to wait before beginning to check if the service is ready
+	InitialDelay() time.Duration
+
 	IsServiceUp(toCheck Service, dependencies []Service) bool
 
 	// How long to keep checking for the service to be available before giving up

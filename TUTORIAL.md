@@ -97,6 +97,8 @@ Since a Docker container being up doesn't mean that the service inside is availa
 ```go
 type MyServiceAvailabilityCheckerCore struct {}
 
+func (core MyServiceAvailabilityCheckerCore) InitialDelay() time.Duration { return 0 }
+
 func (core MyServiceAvailabilityCheckerCore) IsServiceUp(toCheck Service, dependencies []Service) bool {
     // Go doesn't have generics, so we need to cast to our service interface
     castedToCheck := toCheck.(MyService)

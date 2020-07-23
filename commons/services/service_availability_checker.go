@@ -2,9 +2,10 @@ package services
 
 import (
 	"context"
+	"time"
+
 	"github.com/palantir/stacktrace"
 	"github.com/sirupsen/logrus"
-	"time"
 )
 
 const (
@@ -14,9 +15,9 @@ const (
 type ServiceAvailabilityChecker struct {
 	// We bend the Go rules and store a context in a struct because we don't want the user to need to think about contexts
 	// when writing their tests
-	context context.Context
-	core ServiceAvailabilityCheckerCore
-	toCheck Service
+	context      context.Context
+	core         ServiceAvailabilityCheckerCore
+	toCheck      Service
 	dependencies []Service
 }
 
@@ -26,9 +27,9 @@ func NewServiceAvailabilityChecker(context context.Context, core ServiceAvailabi
 	copy(dependenciesCopy, dependencies)
 
 	return &ServiceAvailabilityChecker{
-		context: context,
-		core: core,
-		toCheck: toCheck,
+		context:      context,
+		core:         core,
+		toCheck:      toCheck,
 		dependencies: dependenciesCopy,
 	}
 }
@@ -41,6 +42,12 @@ func (checker ServiceAvailabilityChecker) WaitForStartup() error {
 	timeoutContext, cancel := context.WithTimeout(checker.context, startupTimeout)
 	defer cancel()
 
+	initialDelay := checker.core.InitialDelay()
+	if initialDelay > 0 {
+		logrus.Infof("Waiting %f seconds before checking if service is up...", initialDelay.Seconds())
+		time.Sleep(initialDelay)
+	}
+
 	for timeoutContext.Err() == nil {
 		if checker.core.IsServiceUp(checker.toCheck, checker.dependencies) {
 			return nil
@@ -50,9 +57,9 @@ func (checker ServiceAvailabilityChecker) WaitForStartup() error {
 	}
 
 	contextErr := timeoutContext.Err()
-	if (contextErr == context.Canceled) {
+	if contextErr == context.Canceled {
 		return stacktrace.Propagate(contextErr, "Context was cancelled while waiting for service to startFailed to Hit timeout (%v) while waiting for service to start", startupTimeout)
-	} else if (contextErr == context.DeadlineExceeded) {
+	} else if contextErr == context.DeadlineExceeded {
 		return stacktrace.Propagate(contextErr, "Hit timeout (%v) while waiting for service to start", startupTimeout)
 	} else {
 		return stacktrace.Propagate(contextErr, "Hit an unknown context error while waiting for service to start")
