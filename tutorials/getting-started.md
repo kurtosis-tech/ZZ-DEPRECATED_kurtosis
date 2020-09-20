@@ -9,7 +9,7 @@ To run tests with Kurtosis, we'll need to define custom components for producing
 In the below tutorial we'll show how to implement each of these components from scratch.
 
 ## The Test Network
-A test always runs against a network of services being tested, and each test will declare the type of network it wants to run against. We're  and we'll need to tell Kurtosis what that network should look like for the test we'll write in this tutorial. 
+A test always runs against a network of services being tested, and each test will declare the type of network it wants to run against. We'll need to tell Kurtosis what that network should look like for the test we'll write in this tutorial. 
 
 Networks are composed of services, so our first step is defining what a "service" looks like. 
 
