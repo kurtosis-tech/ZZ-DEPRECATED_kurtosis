@@ -1,3 +1,6 @@
+NOTE: These documents are for Kurtosis v0; head to [the Kurtosis v1 docs for the latest!](https://github.com/kurtosis-tech/kurtosis-docs)
+==========================================================================================================================
+
 Kurtosis
 ========
 Kurtosis is a framework on top of Docker for writing test suites for any networked system - be it blockchain, distributed datastore, or otherwise. It handles all the gruntwork of setup, test execution, and teardown so you don't have to.
